@@ -22,9 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "string.h"
-#include "DMX512.h"
-#include "usbdmx.h"
+#include "dmx512.h"
+#include "usbftdi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

@@ -1,6 +1,8 @@
 #ifndef __DMX_H
 #define __DMX_H
-#include "main.h"
+
+#include "stm32f1xx_hal.h"
+#include <stdint.h>
 
 #define DMX_CHANNELS_COUNT 512
 

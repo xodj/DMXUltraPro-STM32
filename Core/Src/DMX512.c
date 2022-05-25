@@ -1,4 +1,4 @@
-#include "DMX512.h"
+#include <dmx512.h>
 #include "stm32f1xx_hal_tim.h"
 #include "stm32f1xx_hal_rcc.h"
 /**
