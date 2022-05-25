@@ -35,14 +35,12 @@ typedef unsigned char uchar;
 
 uchar dmxDataU0[DMX_CHANNELS_COUNT];
 uchar dmxDataU1[DMX_CHANNELS_COUNT];
-uchar dmxDataU2[DMX_CHANNELS_COUNT];
 
 /* Clear DMX Buffer */
 void clrdmxData() {
 	for(int i=0;i<DMX_CHANNELS_COUNT;i++){
 		dmxDataU0[i] = 0;
 		dmxDataU1[i] = 0;
-		dmxDataU2[i] = 0;
 	}
 }
 /* Set Tx_GPIO_Mode */
@@ -55,13 +53,8 @@ void GPIO_Tx_Config_OUT(void) {
     GPIO_InitStruct_U1.Pin = DMX_TX_PIN_U1;
     GPIO_InitStruct_U1.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct_U1.Speed = GPIO_SPEED_FREQ_HIGH;
-    GPIO_InitTypeDef GPIO_InitStruct_U2;
-    GPIO_InitStruct_U2.Pin = DMX_TX_PIN_U2;
-    GPIO_InitStruct_U2.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct_U2.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(DMX_TX_GPIO_PORT_U0, &GPIO_InitStruct_U0);
     HAL_GPIO_Init(DMX_TX_GPIO_PORT_U1, &GPIO_InitStruct_U1);
-    HAL_GPIO_Init(DMX_TX_GPIO_PORT_U2, &GPIO_InitStruct_U2);
 }
 
 void GPIO_Tx_Config_AF(void) {
@@ -74,13 +67,8 @@ void GPIO_Tx_Config_AF(void) {
     GPIO_InitStruct_U1.Pin = DMX_TX_PIN_U1;
     GPIO_InitStruct_U1.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct_U1.Speed = GPIO_SPEED_FREQ_HIGH;
-    GPIO_InitTypeDef GPIO_InitStruct_U2;
-    GPIO_InitStruct_U2.Pin = DMX_TX_PIN_U2;
-    GPIO_InitStruct_U2.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct_U2.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(DMX_TX_GPIO_PORT_U0, &GPIO_InitStruct_U0);
     HAL_GPIO_Init(DMX_TX_GPIO_PORT_U1, &GPIO_InitStruct_U1);
-    HAL_GPIO_Init(DMX_TX_GPIO_PORT_U2, &GPIO_InitStruct_U2);
 }
 /* Send Break sign and 00 Code */
 void DMX_Break()
@@ -88,11 +76,9 @@ void DMX_Break()
     GPIO_Tx_Config_OUT();     //Set UART TX pin mode to OUTPUT
     DMX_TX_LOW_U0;
     DMX_TX_LOW_U1;
-    DMX_TX_LOW_U2;
     TIM3WaitUsec(88);        //DMX512 1990's BREAK >88us
     DMX_TX_HIGH_U0;
     DMX_TX_HIGH_U1;
-    DMX_TX_HIGH_U2;
     TIM3WaitUsec(8);         //DMX512 1990's Mark after break MAB >8us
     GPIO_Tx_Config_AF();
     /* Send Start Code 00 */
@@ -109,14 +95,9 @@ void DMX_Send_9Data(uint16_t i)
     {
         DMX_UART_U1->DR = 0x0100 | dmxDataU1[i];
     }
-    if(DMX_UART_U2->SR & (1<<6))
-    {
-        DMX_UART_U2->DR = 0x0100 | dmxDataU2[i];
-    }
     //waiting for Send data over
     while((DMX_UART_U0->SR&0X40)==0);
     while((DMX_UART_U1->SR&0X40)==0);
-    while((DMX_UART_U2->SR&0X40)==0);
 }
 
 void DMX_Send_Packet(uint16_t tempnum)
@@ -141,11 +122,9 @@ void DMX_Reset() {
     GPIO_Tx_Config_OUT();
     DMX_TX_LOW_U0;
     DMX_TX_LOW_U1;
-    DMX_TX_LOW_U2;
     TIM3WaitUsec(2000);
     DMX_TX_HIGH_U0;
     DMX_TX_HIGH_U1;
-    DMX_TX_HIGH_U2;
     TIM3WaitUsec(88);
     GPIO_Tx_Config_AF();
     DMX_Send_9Data(0x00);
@@ -165,10 +144,6 @@ void DMX_Demo() {
 	    	dmxDataU1[1] = dmxDataU1[1] + 1;
 	    	dmxDataU1[2] = dmxDataU1[2] + 1;
 	    	dmxDataU1[3] = dmxDataU1[3] + 1;
-	    	dmxDataU2[0] = dmxDataU2[0] + 1;
-	    	dmxDataU2[1] = dmxDataU2[1] + 1;
-	    	dmxDataU2[2] = dmxDataU2[2] + 1;
-	    	dmxDataU2[3] = dmxDataU2[3] + 1;
 	    }
 	} else {
 	    if(dmxDataU0[0] == 0){
@@ -182,10 +157,6 @@ void DMX_Demo() {
 	    	dmxDataU1[1] = dmxDataU1[1] - 1;
 	    	dmxDataU1[2] = dmxDataU1[2] - 1;
 	    	dmxDataU1[3] = dmxDataU1[3] - 1;
-	    	dmxDataU2[0] = dmxDataU2[0] - 1;
-	    	dmxDataU2[1] = dmxDataU2[1] - 1;
-	    	dmxDataU2[2] = dmxDataU2[2] - 1;
-	    	dmxDataU2[3] = dmxDataU2[3] - 1;
 	    }
 	}
 }

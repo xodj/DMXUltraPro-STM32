@@ -6,7 +6,6 @@
 
 extern uchar dmxDataU0[DMX_CHANNELS_COUNT];
 extern uchar dmxDataU1[DMX_CHANNELS_COUNT];
-extern uchar dmxDataU2[DMX_CHANNELS_COUNT];
 
 extern void ftdi_tx_buf(uint8_t usb_txbuf_[], uint16_t usb_txbuf_size_);
 
@@ -26,22 +25,12 @@ static void usb_send(uint8_t label, uint8_t *data, uint16_t size)
 
 static void dmessage_handler(uint8_t label)
 {
-	if(label == LABEL_SERIAL){//10
-		usb_send(LABEL_SERIAL, 	DEVICE_SERIAL, sizeof(DEVICE_SERIAL));
-		return;
-	}
-	if(label == LABEL_DMXDATA ||
-			label == LABEL_UNIVERSE_0 ||
-			label == LABEL_UNIVERSE_1){//6
-	    HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);
-		return;
-	}
 	switch (label)
 	{
 		case LABEL_PARAMS://3
 			usb_send(LABEL_PARAMS, 	DEVICE_PARAMS, sizeof(DEVICE_PARAMS));
 		break;
-		case LABEL_SERIAL:
+		case LABEL_SERIAL://10
 			usb_send(LABEL_SERIAL, 	DEVICE_SERIAL, sizeof(DEVICE_SERIAL));
 		break;
 
@@ -53,30 +42,41 @@ static void dmessage_handler(uint8_t label)
 			usb_send(LABEL_NAME, (uint8_t*)DEVICE_NAME, sizeof(DEVICE_NAME));
 		break;
 
-		case LABEL_DMXDATA://6
-		{
-		    HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);
-		}
-		break;
-		case LABEL_UNIVERSE_0://100
-		{
-		    HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);
-		}
-		break;
-		case LABEL_UNIVERSE_1://101
-		{
-		    HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);
-		}
-		break;
-
-		case 13://0x0d ENTTEC_PRO_ENABLE_API2 ignore
+		case 13://0x0d ENTTEC_PRO_ENABLE_API2 (ENABLE TWO UNIVERSES)
 			usb_send(LABEL_SERIAL, 	DEVICE_SERIAL, sizeof(DEVICE_SERIAL));
 		break;
+
 		case 203://0xcb ENTTEC_PRO_PORT_ASS_REQ
 			usb_send(LABEL_SERIAL, 	DEVICE_SERIAL, sizeof(DEVICE_SERIAL));
 		break;
 
+		/*case LABEL_DMXDATA://6
+		{
+		    HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);
+		}
+		break;
+
+		case 169://U2
+		{
+		    HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);
+		}
+		break;
+
+		case LABEL_UNIVERSE_0://100 or 6
+		{
+		    HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);
+		}
+		break;
+
+		case LABEL_UNIVERSE_1://101 or 169
+		{
+		    HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);
+		}
+		break;*/
+
 		default:
+		    //HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);
+		    HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
 		break;
 	}
 }
@@ -119,10 +119,6 @@ void usb_rx_handler(uint8_t buf[], uint32_t *size)
 			case IN_DATA:
 				(label == LABEL_UNIVERSE_0 || label == LABEL_DMXDATA
 						? dmxDataU0 : dmxDataU1) [rx_data_offset] = data;
-				/*if(label == LABEL_UNIVERSE_0)
-					dmxDataU0[rx_data_offset] = data;
-				else
-					dmxDataU1[rx_data_offset] = data;*/
 				rx_data_offset++;
 				if (rx_data_offset == expected_size)
 					{rx_state = WAITING_FOR_EOM;}
