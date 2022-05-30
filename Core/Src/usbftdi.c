@@ -46,7 +46,33 @@ static usbd_respond usb_getdesc (usbd_ctlreq *req, void **address, uint16_t *len
     return usbd_ack;
 }
 
+static uint8_t INTERFACE_A_RX[] = {0x01, 0x60};
+
+static void usb_bulk_in(usbd_device *dev, uint8_t event, uint8_t ep) {
+	//usbd_ep_stall(dev, BULK_OUT_ENDPOINT_TOKEN);
+	if(usb_txbuf_bool){
+		usbd_ep_write(dev, BULK_IN_ENDPOINT_TOKEN, &usb_txbuf, usb_txbuf_size);
+		usb_txbuf_size = 0;
+		usb_txbuf_bool = 0;
+	} else {
+		usbd_ep_write(dev, BULK_IN_ENDPOINT_TOKEN, &INTERFACE_A_RX, 2);
+	}
+    //usbd_ep_unstall(dev, BULK_OUT_ENDPOINT_TOKEN);
+}
+
+static void usb_bulk_out(usbd_device *dev, uint8_t event, uint8_t ep) {
+	//usbd_ep_stall(dev, BULK_IN_ENDPOINT_TOKEN);
+	uint32_t bsize = usbd_ep_read(dev, BULK_OUT_ENDPOINT_TOKEN, usb_rxbuf, WMAXPACKETSIZE);
+    if(bsize > 0) {
+    	usb_rx_handler(usb_rxbuf, &bsize);
+    }
+    //usbd_ep_unstall(dev, BULK_IN_ENDPOINT_TOKEN);
+}
+
 static uint16_t ftdiStatus = 0x0000;
+static uint8_t ftdiStatusSize = 0x02;
+uint16_t bwIndex[128];
+uint8_t iwIndex = 0x00;
 
 static usbd_respond usb_control(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_callback *callback) {
 	switch (req->bRequest){
@@ -56,14 +82,14 @@ static usbd_respond usb_control(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_cal
     	if(req->bmRequestType == 0xc0){
     		ftdiStatus = 0x6031;
 	        dev->status.data_ptr = &ftdiStatus;
-	        dev->status.data_count = sizeof(ftdiStatus);
+	        dev->status.data_count = ftdiStatusSize;
             return usbd_ack;
     	} else
         	return usbd_fail;
     case USB_STD_GET_STATUS://0x00 or FT Reset (0)
-    	if(req->bmRequestType == 0x40)
+    	if(req->bmRequestType == 0x40){
             return usbd_ack;
-    	else
+    	} else
         	return usbd_ack;
     case 0x01: //FT ModemCtrl (1)
     	if(req->bmRequestType == 0x40
@@ -92,7 +118,7 @@ static usbd_respond usb_control(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_cal
     	if(req->bmRequestType == 0xc0){
     		ftdiStatus = 0x1010;
 	        dev->status.data_ptr = &ftdiStatus;
-	        dev->status.data_count = 1;
+	        dev->status.data_count = 0x0001;
     	    return usbd_ack;
     	} else
     	    return usbd_ack;
@@ -100,105 +126,26 @@ static usbd_respond usb_control(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_cal
     case 0x90: //144 ftdi
     	if(req->bmRequestType == 0xc0){ //FT DRIVER CMDS
     		//usbd_ep_stall(dev, BULK_IN_ENDPOINT_TOKEN);
-    		ftdiStatus = 0x0000;
-    		/*switch (req->wIndex){
-    	    case 0x00: ftdiStatus = 0x4001; break;
-    	    case 0x01: ftdiStatus = 0x0403; break;
-    	    case 0x02: ftdiStatus = 0x6001; break;
-    	    case 0x03: ftdiStatus = 0x0600; break;
-    	    case 0x04: ftdiStatus = 0x3280; break;
-    	    case 0x05: ftdiStatus = 0x0008; break;
-    	    case 0x06: ftdiStatus = 0x0000; break;
-    	    case 0x07: ftdiStatus = 0x2498; break;
-    	    case 0x08: ftdiStatus = 0x18bc; break;
-    	    case 0x09: ftdiStatus = 0x12d4; break;
-    	    case 0x0a: ftdiStatus = 0x0000; break;
-    	    case 0x0b: ftdiStatus = 0x0000; break;
-    	    case 0x0c: ftdiStatus = 0x0324; break;
-    	    case 0x0d: ftdiStatus = 0x0053; break;
-    	    case 0x0e: ftdiStatus = 0x0069; break;
-    	    case 0x0f: ftdiStatus = 0x0062; break;
-    	    case 0x10: ftdiStatus = 0x0065; break;
-    	    case 0x11: ftdiStatus = 0x0072; break;
-    	    case 0x12: ftdiStatus = 0x0069; break;
-    	    case 0x13: ftdiStatus = 0x0061; break;
-    	    case 0x14: ftdiStatus = 0x006e; break;
-    	    case 0x15: ftdiStatus = 0x0020; break;
-    	    case 0x16: ftdiStatus = 0x004c; break;
-    	    case 0x17: ftdiStatus = 0x0069; break;
-    	    case 0x18: ftdiStatus = 0x0067; break;
-    	    case 0x19: ftdiStatus = 0x0068; break;
-    	    case 0x1a: ftdiStatus = 0x0074; break;
-    	    case 0x1b: ftdiStatus = 0x0069; break;
-    	    case 0x1c: ftdiStatus = 0x006e; break;
-    	    case 0x1d: ftdiStatus = 0x0067; break;
-    	    case 0x1e: ftdiStatus = 0x0318; break;
-    	    case 0x1f: ftdiStatus = 0x0044; break;
-    	    case 0x20: ftdiStatus = 0x004d; break;
-    	    case 0x21: ftdiStatus = 0x0058; break;
-    	    case 0x22: ftdiStatus = 0x0020; break;
-    	    case 0x23: ftdiStatus = 0x0055; break;
-    	    case 0x24: ftdiStatus = 0x0053; break;
-    	    case 0x25: ftdiStatus = 0x0042; break;
-    	    case 0x26: ftdiStatus = 0x0020; break;
-    	    case 0x27: ftdiStatus = 0x0050; break;
-    	    case 0x28: ftdiStatus = 0x0052; break;
-    	    case 0x29: ftdiStatus = 0x004f; break;
-    	    case 0x2a: ftdiStatus = 0x0312; break;
-    	    case 0x2b: ftdiStatus = 0x0053; break;
-    	    case 0x2c: ftdiStatus = 0x004c; break;
-    	    case 0x2d: ftdiStatus = 0x0034; break;
-    	    case 0x2e: ftdiStatus = 0x0034; break;
-    	    case 0x2f: ftdiStatus = 0x0039; break;
-    	    case 0x30: ftdiStatus = 0x0035; break;
-    	    case 0x31: ftdiStatus = 0x0038; break;
-    	    case 0x32: ftdiStatus = 0x0039; break;
-    	    case 0x33: ftdiStatus = 0x0000; break;
-    	    case 0x34: ftdiStatus = 0x0000; break;
-    	    case 0x35: ftdiStatus = 0x0000; break;
-    	    case 0x36: ftdiStatus = 0x0000; break;
-    	    case 0x37: ftdiStatus = 0x0000; break;
-    	    case 0x38: ftdiStatus = 0x0000; break;
-    	    case 0x39: ftdiStatus = 0x0000; break;
-    	    case 0x3a: ftdiStatus = 0x0000; break;
-    	    case 0x3b: ftdiStatus = 0x0000; break;
-    	    case 0x3c: ftdiStatus = 0x0000; break;
-    	    case 0x3d: ftdiStatus = 0x0000; break;
-    	    case 0x3e: ftdiStatus = 0x0000; break;
-    	    case 0x3f: ftdiStatus = 0x091f; break;
-    	    default: break;
-    		}*/
-	        dev->status.data_ptr = &ftdiStatus;
-	        dev->status.data_count = sizeof(ftdiStatus);
+    		int wIndex = (int)req->wIndex;
+    		bwIndex[iwIndex] = req->wIndex;
+    		iwIndex++;
+    		if(FTDI_DESCRIPTOR[wIndex]){
+    			ftdiStatus = FTDI_DESCRIPTOR[wIndex];
+    	        dev->status.data_ptr = &ftdiStatus;
+    	        dev->status.data_count = ftdiStatusSize;
+    		} else {
+        		ftdiStatus = 0x0000;
+    	        dev->status.data_ptr = &ftdiStatus;
+    	        dev->status.data_count = ftdiStatusSize;
+    		}
+    		if(iwIndex == 0x40)
+    	        return usbd_ack;
 	        return usbd_ack;
     	} else
     		break;
     default: break;
     }
     return usbd_ack;
-}
-
-static uint8_t INTERFACE_A_RX[] = {0x01, 0x60};
-
-static void usb_bulk_in(usbd_device *dev, uint8_t event, uint8_t ep) {
-	//usbd_ep_stall(dev, BULK_OUT_ENDPOINT_TOKEN);
-	if(usb_txbuf_bool){
-		usbd_ep_write(dev, BULK_IN_ENDPOINT_TOKEN, &usb_txbuf, usb_txbuf_size);
-		usb_txbuf_size = 0;
-		usb_txbuf_bool = 0;
-	} else {
-		usbd_ep_write(dev, BULK_IN_ENDPOINT_TOKEN, &INTERFACE_A_RX, 2);
-	}
-    //usbd_ep_unstall(dev, BULK_OUT_ENDPOINT_TOKEN);
-}
-
-static void usb_bulk_out(usbd_device *dev, uint8_t event, uint8_t ep) {
-	usbd_ep_stall(dev, BULK_IN_ENDPOINT_TOKEN);
-	uint32_t bsize = usbd_ep_read(dev, BULK_OUT_ENDPOINT_TOKEN, usb_rxbuf, WMAXPACKETSIZE);
-    if(bsize > 0) {
-    	usb_rx_handler(usb_rxbuf, &bsize);
-    }
-    usbd_ep_unstall(dev, BULK_IN_ENDPOINT_TOKEN);
 }
 
 static usbd_respond usb_setconf (usbd_device *dev, uint8_t cfg) {
