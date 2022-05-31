@@ -428,12 +428,9 @@ void dmxSend(void *argument)
 void usbPoll(void *argument)
 {
   /* USER CODE BEGIN usbPoll */
-	InitUSB();
+  InitUSB();
   /* Infinite loop */
-  for(;;)
-  {
-  	  USBPoll();
-  }
+  for(;;){}
   /* USER CODE END usbPoll */
 }
 

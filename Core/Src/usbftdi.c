@@ -46,33 +46,45 @@ static usbd_respond usb_getdesc (usbd_ctlreq *req, void **address, uint16_t *len
     return usbd_ack;
 }
 
-static uint8_t INTERFACE_A_RX[] = {0x01, 0x60};
-
-static void usb_bulk_in(usbd_device *dev, uint8_t event, uint8_t ep) {
-	//usbd_ep_stall(dev, BULK_OUT_ENDPOINT_TOKEN);
-	if(usb_txbuf_bool){
-		usbd_ep_write(dev, BULK_IN_ENDPOINT_TOKEN, &usb_txbuf, usb_txbuf_size);
-		usb_txbuf_size = 0;
-		usb_txbuf_bool = 0;
-	} else {
-		usbd_ep_write(dev, BULK_IN_ENDPOINT_TOKEN, &INTERFACE_A_RX, 2);
-	}
-    //usbd_ep_unstall(dev, BULK_OUT_ENDPOINT_TOKEN);
-}
-
-static void usb_bulk_out(usbd_device *dev, uint8_t event, uint8_t ep) {
-	//usbd_ep_stall(dev, BULK_IN_ENDPOINT_TOKEN);
-	uint32_t bsize = usbd_ep_read(dev, BULK_OUT_ENDPOINT_TOKEN, usb_rxbuf, WMAXPACKETSIZE);
-    if(bsize > 0) {
-    	usb_rx_handler(usb_rxbuf, &bsize);
-    }
-    //usbd_ep_unstall(dev, BULK_IN_ENDPOINT_TOKEN);
-}
+static uint16_t FTDI_DESCRIPTOR[] = {
+		/*0000*/ 0x4000, 0x0403, 0x6001, 0x0600, 0x3280, 0x0008, 0x0200, 0x1098,
+		/*0008*/ 0x20A8, 0x12C8, 0x0000, 0x0000, 0x0310, 0x0044, 0x004D, 0x0058,
+		/*0010*/ 0x004C, 0x0049, 0x0046, 0x0045, 0x0320, 0x0044, 0x004D, 0x0058,
+		/*0018*/ 0x0020, 0x0055, 0x0053, 0x0042, 0x0020, 0x0050, 0x0052, 0x004F,
+		/*0020*/ 0x0020, 0x004D, 0x004B, 0x0032, 0x0312, 0x0053, 0x0053, 0x0031,
+		/*0028*/ 0x0032, 0x0038, 0x0030, 0x0033, 0x0034, 0x0000, 0x0000, 0x0000,
+		/*0030*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+		/*0038*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x8FF8,
+		/*0040*/ 0x0204, 0x0109, 0x0728, 0x6a01, 0x406b, 0x9544, 0x0589, 0x0402,
+		/*0048*/ 0x0000, 0x0000, 0x0256, 0xffff, 0x0032, 0x00b0, 0x000c, 0x005a,
+		/*0050*/ 0x0200, 0x413c, 0xe0a4, 0x0000, 0x0d20, 0x2000, 0x0d88, 0x2000,
+		/*0058*/ 0x0000, 0x0000, 0x0001, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+		/*0060*/ 0x9a9b, 0x0800, 0x9b13, 0x0800, 0x9b99, 0x0800, 0x9bcd, 0x0800,
+		/*0068*/ 0x0000, 0x0100, 0x0002, 0x0000, 0x0000, 0x0000, 0x9c0b, 0x0800,
+		/*0070*/ 0x9c25, 0x0800, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+		/*0078*/ 0x0000, 0x0100, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
+};
+/*
+ * 0000: 4000 0403 6001 0600 3280 0008 0200 1098   @...`...2.......
+ * 0008: 20A8 12C8 0000 0000 0310 0044 004D 0058    ..........D.M.X
+ * 0010: 004C 0049 0046 0045 0320 0044 004D 0058   .L.I.F.E. .D.M.X
+ * 0018: 0020 0055 0053 0042 0020 0050 0052 004F   . .U.S.B. .P.R.O
+ * 0020: 0020 004D 004B 0032 0312 0053 0053 0031   . .M.K.2...S.S.1
+ * 0028: 0032 0038 0030 0033 0034 0000 0000 0000   .2.8.0.3.4......
+ * 0030: 0000 0000 0000 0000 0000 0000 0000 0000   ................
+ * 0038: 0000 0000 0000 0000 0000 0000 0000 8FF8   ................
+ * 0040: 0204 0109 0728 6A01 406B 9544 0589 0402   .....(j.@k.D....
+ * 0048: 0000 0000 0256 FFFF 0032 00B0 000C 005A   .....V...2.....Z
+ * 0050: 0200 413C E0A4 0000 0D20 2000 0D88 2000   ..A<.....  ... .
+ * 0058: 0000 0000 0001 0000 0000 0000 0000 0000   ................
+ * 0060: 9A9B 0800 9B13 0800 9B99 0800 9BCD 0800   ................
+ * 0068: 0000 0100 0002 0000 0000 0000 9C0B 0800   ................
+ * 0070: 9C25 0800 0000 0000 0000 0000 0000 0000   .%..............
+ * 0078: 0000 0100 0000 0000 0000 0000 0000 0000   ................
+ */
 
 static uint16_t ftdiStatus = 0x0000;
 static uint8_t ftdiStatusSize = 0x02;
-uint16_t bwIndex[128];
-uint8_t iwIndex = 0x00;
 
 static usbd_respond usb_control(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_callback *callback) {
 	switch (req->bRequest){
@@ -94,7 +106,6 @@ static usbd_respond usb_control(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_cal
     case 0x01: //FT ModemCtrl (1)
     	if(req->bmRequestType == 0x40
     			&&req->wValue == 512){
-    		//usbd_ep_unstall(dev, BULK_IN_ENDPOINT_TOKEN);
     		return usbd_ack;
     	} else if(req->bmRequestType == 0x09)
     		return usbd_ack;
@@ -125,11 +136,8 @@ static usbd_respond usb_control(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_cal
     	break;
     case 0x90: //144 ftdi
     	if(req->bmRequestType == 0xc0){ //FT DRIVER CMDS
-    		//usbd_ep_stall(dev, BULK_IN_ENDPOINT_TOKEN);
     		int wIndex = (int)req->wIndex;
-    		bwIndex[iwIndex] = req->wIndex;
-    		iwIndex++;
-    		if(FTDI_DESCRIPTOR[wIndex]){
+    		if(wIndex >= 0 && wIndex < 128){
     			ftdiStatus = FTDI_DESCRIPTOR[wIndex];
     	        dev->status.data_ptr = &ftdiStatus;
     	        dev->status.data_count = ftdiStatusSize;
@@ -138,14 +146,31 @@ static usbd_respond usb_control(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_cal
     	        dev->status.data_ptr = &ftdiStatus;
     	        dev->status.data_count = ftdiStatusSize;
     		}
-    		if(iwIndex == 0x40)
-    	        return usbd_ack;
 	        return usbd_ack;
     	} else
     		break;
     default: break;
     }
     return usbd_ack;
+}
+
+static uint8_t INTERFACE_A_RX[] = {0x01, 0x60};
+
+static void usb_bulk_in(usbd_device *dev, uint8_t event, uint8_t ep) {
+	if(usb_txbuf_bool){
+		usbd_ep_write(dev, BULK_IN_ENDPOINT_TOKEN, &usb_txbuf, usb_txbuf_size);
+		usb_txbuf_size = 0;
+		usb_txbuf_bool = 0;
+	} else {
+		usbd_ep_write(dev, BULK_IN_ENDPOINT_TOKEN, &INTERFACE_A_RX, 2);
+	}
+}
+
+static void usb_bulk_out(usbd_device *dev, uint8_t event, uint8_t ep) {
+	uint32_t bsize = usbd_ep_read(dev, BULK_OUT_ENDPOINT_TOKEN, usb_rxbuf, WMAXPACKETSIZE);
+    if(bsize > 0) {
+    	usb_rx_handler(usb_rxbuf, &bsize);
+    }
 }
 
 static usbd_respond usb_setconf (usbd_device *dev, uint8_t cfg) {
@@ -171,12 +196,10 @@ static usbd_respond usb_setconf (usbd_device *dev, uint8_t cfg) {
 	return usbd_ack;
 }
 
-/*#define USB_HANDLER     USB_LP_CAN1_RX0_IRQHandler
-#define USB_NVIC_IRQ    USB_LP_CAN1_RX0_IRQn
-
-void USB_HANDLER(void) {
-    usbd_poll(&udev);
-}*/
+void USB_LP_CAN1_RX0_IRQHandler(void)
+{
+  usbd_poll(&udev);
+}
 
 void InitUSB(){
 	//init
@@ -186,14 +209,11 @@ void InitUSB(){
     usbd_reg_descr(&udev, usb_getdesc);
 
 	//connect
-    //NVIC_EnableIRQ(USB_NVIC_IRQ);
+    __HAL_RCC_USB_CLK_ENABLE();
+    HAL_NVIC_SetPriority(USB_LP_CAN1_RX0_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
     usbd_enable(&udev, true);
     usbd_connect(&udev, true);
-}
-
-void USBPoll(){
-    //__WFI();
-    usbd_poll(&udev);
 }
 
 void ftdi_tx_buf(uint8_t usb_txbuf_[], uint16_t usb_txbuf_size_){
