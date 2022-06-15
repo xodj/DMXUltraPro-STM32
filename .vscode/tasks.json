@@ -1,0 +1,40 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build",
+            "type": "shell",
+            "group": "build",
+            "command": "make BOARD=stm32f103_bluepill",
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "group": "build",
+            "command": "make BOARD=stm32f103_bluepill clean",
+            "problemMatcher": []
+        },
+        {
+            "label": "Write firmware",
+            "type": "shell",
+            "command": "make BOARD=stm32f103_bluepill flash-stlink",
+            "problemMatcher": []
+        },
+        {
+            "label": "Rebuild, Write firmware",
+            "dependsOn": "Clean",
+            "type": "shell",
+            "command": "make BOARD=stm32f103_bluepill flash-stlink",
+            "problemMatcher": []
+        },
+        {
+            "label": "Rebuild",
+            "dependsOn": "Clean",
+            "type": "shell",
+            "group": "build",
+            "command": "make BOARD=stm32f103_bluepill",
+            "problemMatcher": []
+        }
+    ]
+}

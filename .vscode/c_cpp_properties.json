@@ -1,0 +1,33 @@
+{
+    "configurations": [
+        {
+            "name": "tinyusb (stm32f103_bluepill)",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/../../../src/**",
+                "${workspaceFolder}/../../../hw/**",
+                "${workspaceFolder}/../../../hw/bsp/stm32f1/**",
+                "${workspaceFolder}/../../../hw/bsp/stm32f1/boards/stm32f103_bluepill/**",
+                "${workspaceFolder}/../../../../../SDK/GNU Arm Embedded Toolchain/10 2021.10/lib/gcc/arm-none-eabi/10.3.1/include/**",
+                "${workspaceFolder}/../../../../../SDK/GNU Arm Embedded Toolchain/10 2021.10/lib/gcc/arm-none-eabi/10.3.1/include-fixed/**",
+                "${workspaceFolder}/../../../../../SDK/GNU Arm Embedded Toolchain/10 2021.10/arm-none-eabi/include/**",
+                "D:/SDK/GNU Arm Embedded Toolchain/10 2021.10/lib/gcc/arm-none-eabi/10.3.1/include/**",
+                "D:/SDK/GNU Arm Embedded Toolchain/10 2021.10/lib/gcc/arm-none-eabi/10.3.1/include-fixed/**",
+                "D:/SDK/GNU Arm Embedded Toolchain/10 2021.10/arm-none-eabi/include/**"
+            ],
+            "defines": [
+                "CFG_TUSB_MCU=OPT_MCU_STM32F1",
+                "CFG_TUD_ENABLED"
+            ],
+            "compilerPath": "D:/SDK/GNU Arm Embedded Toolchain/10 2021.10/bin/arm-none-eabi-gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "linux-gcc-arm",
+            "compilerArgs": [
+                "BOARD=stm32f103_bluepill"
+            ],
+            "configurationProvider": "ms-vscode.makefile-tools"
+        }
+    ],
+    "version": 4
+}
