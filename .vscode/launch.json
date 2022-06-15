@@ -3,7 +3,7 @@
 	"configurations": [
 		{
 			"cwd": "${workspaceFolder}",
-			"executable": "./_build/stm32f103_bluepill/ftdi.elf",
+			"executable": "./_build/stm32f103_bluepill/DMXKing-TinyUSB.elf",
 			"name": "Debug with ST-Link",
 			"request": "launch",
 			"type": "cortex-debug",
