@@ -30,12 +30,12 @@ StackType_t usb_device_stack[USBD_STACK_SIZE];
 StaticTask_t usb_device_taskdef;
 
 // static task for cdc
-#define CDC_STACK_SZIE configMINIMAL_STACK_SIZE
-StackType_t cdc_stack[CDC_STACK_SZIE];
-StaticTask_t cdc_taskdef;
+#define DMX_STACK_SZIE configMINIMAL_STACK_SIZE
+StackType_t dmx_stack[DMX_STACK_SZIE];
+StaticTask_t dmx_taskdef;
 
 void usb_device_task(void *param);
-void cdc_task(void *params);
+void dmx_task(void *params);
 
 // LED
 #define LED_PORT              GPIOC
@@ -78,8 +78,8 @@ int main(void)
   (void)xTaskCreateStatic(usb_device_task, "usbd", USBD_STACK_SIZE,
     NULL, configMAX_PRIORITIES - 1, usb_device_stack, &usb_device_taskdef);
   // Create CDC task
-  (void)xTaskCreateStatic(cdc_task, "cdc", CDC_STACK_SZIE,
-    NULL, configMAX_PRIORITIES - 2, cdc_stack, &cdc_taskdef);
+  (void)xTaskCreateStatic(dmx_task, "dmxd", DMX_STACK_SZIE,
+    NULL, configMAX_PRIORITIES - 2, dmx_stack, &dmx_taskdef);
 
   // skip starting scheduler (and return) for ESP32-S2 or ESP32-S3
 #if !TU_CHECK_MCU(OPT_MCU_ESP32S2, OPT_MCU_ESP32S3)
@@ -150,14 +150,14 @@ void usb_device_task(void *param)
     usb_ftdi_poll();
   }
 }
-void cdc_task(void *params)
+void dmx_task(void *params)
 {
   (void)params;
   DMX_Init();
   // RTOS forever loop
   while (1)
   {
-    DMX_Send_Packet(512);
+    DMX_Send_Packet();
   }
 }
 

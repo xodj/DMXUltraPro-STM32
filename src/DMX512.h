@@ -23,7 +23,7 @@ void GPIO_Tx_Config_OUT(void);
 void GPIO_Tx_Config_AF(void);
 void DMX_Break(void);
 void DMX_Send_9Data(uint16_t i);
-void DMX_Send_Packet(uint16_t tempnum);
+void DMX_Send_Packet(void);
 void DMX_Init(void);
 
 #endif

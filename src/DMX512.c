@@ -3,7 +3,7 @@
 #define HAL_UART_MODULE_ENABLED
 #include "stm32f1xx_hal_uart.h"
 /**
- * @brief Blocks for X microseconds by using TIM3.
+ * @brief Blocks for usec nanoseconds by using TIM3.
  *
  * The wait is achieved by setting up the timer TIM3, followed by enabling
  * the timer, and waiting until the timer period has lapsed. After the timer
@@ -111,11 +111,11 @@ void DMX_Send_9Data(uint16_t i)
         ;
 }
 
-void DMX_Send_Packet(uint16_t tempnum)
+void DMX_Send_Packet(void)
 {
     uint16_t i = 0;
     DMX_Break();        // Break and Start Code
-    while (i < tempnum) // 1-512
+    while (i < 512) // 1-512
     {
         DMX_Send_9Data(i);
         i++;
@@ -150,9 +150,9 @@ void DMX_Init(void)
     huart3.Init.OverSampling = UART_OVERSAMPLING_16;
 
     if (HAL_UART_Init(&huart1) != HAL_OK)
-        HardFault_Handler();
+        HAL_NVIC_SystemReset();
     if (HAL_UART_Init(&huart3) != HAL_OK)
-        HardFault_Handler();
+        HAL_NVIC_SystemReset();
 
     // enable TIM3
     __HAL_RCC_TIM3_CLK_ENABLE();
