@@ -50,7 +50,7 @@
 									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32F1xx/Include"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="&quot;../..\tinyusb\src&quot;"/>
+									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/tinyusb/src"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.1622186907" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
@@ -77,10 +77,9 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding=".git/|.github/|.vscode/|docs/|examples/|hw/|lib/|test/|tools/|.gitattributes|.gitignore|.gitmodules|.readthedocs.yaml|CODE_OF_CONDUCT.rst|CONTRIBUTORS.rst|LICENSE|pkg.yml|README.rst|repository.yml|version.yml|src/host/|src/portable/bridgetek/|src/portable/chipidea/|src/portable/dialog/|src/portable/ehci/|src/portable/espressif/|src/portable/mentor/|src/portable/microchip/|src/portable/mindmotion/|src/portable/nordic/|src/portable/nuvoton/|src/portable/nxp/|src/portable/ohci/|src/portable/raspberrypi/|src/portable/renesas/|src/portable/sony/|src/portable/sunxi/|src/portable/synopsys/|src/portable/template/|src/portable/ti/|src/portable/valentyusb/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="tinyusb"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -131,7 +130,7 @@
 									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32F1xx/Include"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="&quot;../..\tinyusb\src&quot;"/>
+									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/tinyusb/src"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.1478977402" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
@@ -158,10 +157,9 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding=".git/|.github/|.vscode/|docs/|examples/|hw/|lib/|test/|tools/|.gitattributes|.gitignore|.gitmodules|.readthedocs.yaml|CODE_OF_CONDUCT.rst|CONTRIBUTORS.rst|LICENSE|pkg.yml|README.rst|repository.yml|version.yml|src/host/|src/portable/bridgetek/|src/portable/chipidea/|src/portable/dialog/|src/portable/ehci/|src/portable/espressif/|src/portable/mentor/|src/portable/microchip/|src/portable/mindmotion/|src/portable/nordic/|src/portable/nuvoton/|src/portable/nxp/|src/portable/ohci/|src/portable/raspberrypi/|src/portable/renesas/|src/portable/sony/|src/portable/sunxi/|src/portable/synopsys/|src/portable/template/|src/portable/ti/|src/portable/valentyusb/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="tinyusb"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
