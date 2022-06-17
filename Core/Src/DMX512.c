@@ -1,7 +1,5 @@
 #include <dmx512.h>
 #include "stm32f1xx_hal.h"
-#define HAL_UART_MODULE_ENABLED
-#include "stm32f1xx_hal_uart.h"
 /**
  * @brief Blocks for usec nanoseconds by using TIM4.
  *
@@ -125,35 +123,6 @@ void DMX_Send_Packet(void)
 void DMX_Init(void)
 {
     GPIO_Tx_Config_AF();
-    __HAL_RCC_USART1_CLK_ENABLE();
-    __HAL_RCC_USART3_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-
-    UART_HandleTypeDef huart1;
-    UART_HandleTypeDef huart3;
-    huart1.Instance = DMX_UART_U0;
-    huart1.Init.BaudRate = 250000;
-    huart1.Init.WordLength = UART_WORDLENGTH_9B;
-    huart1.Init.StopBits = UART_STOPBITS_2;
-    huart1.Init.Parity = UART_PARITY_NONE;
-    huart1.Init.Mode = UART_MODE_TX;
-    huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-    huart3.Instance = DMX_UART_U1;
-    huart3.Init.BaudRate = 250000;
-    huart3.Init.WordLength = UART_WORDLENGTH_9B;
-    huart3.Init.StopBits = UART_STOPBITS_2;
-    huart3.Init.Parity = UART_PARITY_NONE;
-    huart3.Init.Mode = UART_MODE_TX;
-    huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-
-    if (HAL_UART_Init(&huart1) != HAL_OK)
-        HAL_NVIC_SystemReset();
-    if (HAL_UART_Init(&huart3) != HAL_OK)
-        HAL_NVIC_SystemReset();
-
     // enable TIM4
     __HAL_RCC_TIM4_CLK_ENABLE();
     clrdmxData();
