@@ -59,6 +59,14 @@ static void usb_send(uint8_t label, uint8_t *data, uint16_t size)
 	ftdi_tx_buf(usb_txbuf, size + 7);
 }
 
+extern void messageRecieved(void);
+
+static void recived_dmx_data(void){
+    //HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);
+    HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
+    messageRecieved();
+}
+
 static void dmessage_handler(uint8_t label)
 {
 	switch (label)
@@ -94,8 +102,7 @@ static void dmessage_handler(uint8_t label)
 		break;*/
 
 		default:
-		    HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);
-		    //HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
+			recived_dmx_data();
 		break;
 	}
 }

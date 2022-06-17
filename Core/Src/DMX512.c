@@ -3,9 +3,9 @@
 #define HAL_UART_MODULE_ENABLED
 #include "stm32f1xx_hal_uart.h"
 /**
- * @brief Blocks for usec nanoseconds by using TIM3.
+ * @brief Blocks for usec nanoseconds by using TIM4.
  *
- * The wait is achieved by setting up the timer TIM3, followed by enabling
+ * The wait is achieved by setting up the timer TIM4, followed by enabling
  * the timer, and waiting until the timer period has lapsed. After the timer
  * period has lapsed, the timer is disabled again.
  *
@@ -22,17 +22,17 @@
  * @param X The amount of microseconds to block.
  * @return None.
  */
-#define APBTimFreq 72000000
-#define Tim3Freq APBTimFreq / 1000000 - 1
-#define TIM3WaitUsec(usec)         \
-    TIM3->PSC = Tim3Freq;          \
-    TIM3->ARR = usec;              \
-    TIM3->CNT = 0;                 \
-    TIM3->CR1 |= TIM_CR1_CEN;      \
-    while (TIM3->CNT != TIM3->ARR) \
+#define APB2TimFreq 48000000
+#define TIM4Freq APB2TimFreq / 1000000 - 1
+#define TIM4WaitUsec(usec)         \
+    TIM4->PSC = TIM4Freq;          \
+    TIM4->ARR = usec;              \
+    TIM4->CNT = 0;                 \
+    TIM4->CR1 |= TIM_CR1_CEN;      \
+    while (TIM4->CNT != TIM4->ARR) \
     {                              \
     }                              \
-    TIM3->CR1 &= ~TIM_CR1_CEN
+    TIM4->CR1 &= ~TIM_CR1_CEN
 
 typedef unsigned char uchar;
 
@@ -85,10 +85,10 @@ void DMX_Break(void)
     GPIO_Tx_Config_OUT(); // Set UART TX pin mode to OUTPUT
     DMX_TX_LOW_U0;
     DMX_TX_LOW_U1;
-    TIM3WaitUsec(88); // DMX512 1990's BREAK >88us
+    TIM4WaitUsec(88); // DMX512 1990's BREAK >88us
     DMX_TX_HIGH_U0;
     DMX_TX_HIGH_U1;
-    TIM3WaitUsec(8); // DMX512 1990's Mark after break MAB >8us
+    TIM4WaitUsec(8); // DMX512 1990's Mark after break MAB >8us
     GPIO_Tx_Config_AF();
     /* Send Start Code 00 */
     DMX_Send_9Data(0x00);
@@ -154,8 +154,8 @@ void DMX_Init(void)
     if (HAL_UART_Init(&huart3) != HAL_OK)
         HAL_NVIC_SystemReset();
 
-    // enable TIM3
-    __HAL_RCC_TIM3_CLK_ENABLE();
+    // enable TIM4
+    __HAL_RCC_TIM4_CLK_ENABLE();
     clrdmxData();
     DMX_Reset();
 }
@@ -165,10 +165,10 @@ void DMX_Reset(void)
     GPIO_Tx_Config_OUT();
     DMX_TX_LOW_U0;
     DMX_TX_LOW_U1;
-    TIM3WaitUsec(2000);
+    TIM4WaitUsec(2000);
     DMX_TX_HIGH_U0;
     DMX_TX_HIGH_U1;
-    TIM3WaitUsec(88);
+    TIM4WaitUsec(88);
     GPIO_Tx_Config_AF();
     DMX_Send_9Data(0x00);
 }

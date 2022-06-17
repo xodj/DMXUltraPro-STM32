@@ -1,15 +1,12 @@
+#include "usbftdi.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include "stm32f1xx_hal.h"
-#include "tusb.h"
+#include "main.h"
 #include "enttecdmx.h"
-//#include "stm32f1xx_hal_iwdg.h"
 
 #define FTDI_TX_INTERVAL_MS 4294967295
 #define FTDI_DRIVER_NUMBER 0
-
-//IWDG_HandleTypeDef hiwdg;
-bool iwdg_initiated = false;
 
 static uint8_t usb_ftdi_tx_buf[CFG_TUD_VENDOR_TX_BUFSIZE];
 static uint16_t usb_ftdi_tx_buf_size = 0;
@@ -22,8 +19,6 @@ static uint8_t usb_ftdi_rx_buf[CFG_TUD_VENDOR_RX_BUFSIZE];
 
 void led_blinking_task(void);
 void ftdi_tx_buf(uint8_t usb_txbuf_[], uint16_t usb_txbuf_size_);
-
-extern uint32_t board_millis(void);
 
 void USBWakeUp_IRQHandler(void){
 	tud_int_handler(0);
@@ -42,9 +37,6 @@ void usb_ftdi_init(void)
     HAL_NVIC_EnableIRQ(USBWakeUp_IRQn);
 #endif
 	tusb_init();
-  /*hiwdg.Instance = IWDG;
-  hiwdg.Init.Prescaler = IWDG_PRESCALER_64;
-  hiwdg.Init.Reload = 512;*/
 }
 
 void usb_ftdi_poll(void)
@@ -85,17 +77,16 @@ void ftdi_tx_buf(uint8_t usb_txbuf_[], uint16_t usb_txbuf_size_)
 // Invoked when ftdi interface received data from host
 void tud_vendor_rx_cb(uint8_t itf)
 {
-  /*if(iwdg_initiated){
-    HAL_IWDG_Refresh(&hiwdg);
-  } else {
-    HAL_IWDG_Init(&hiwdg);
-    iwdg_initiated = true;
-  }*/
   uint32_t num_read = tud_vendor_n_read(itf, &usb_ftdi_rx_buf, CFG_TUD_VENDOR_RX_BUFSIZE);
   if (num_read > 0)
   {
     usb_rx_handler(usb_ftdi_rx_buf, &num_read);
   }
+}
+
+// Invoked when last rx transfer finished
+TU_ATTR_WEAK void tud_vendor_tx_cb(uint8_t itf, uint32_t sent_bytes){
+	  (void) itf;
 }
 
 // Invoked when device is mounted
