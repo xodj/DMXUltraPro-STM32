@@ -62,8 +62,6 @@ static void usb_send(uint8_t label, uint8_t *data, uint16_t size)
 extern void messageRecieved(void);
 
 static void recived_dmx_data(void){
-    //HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);
-    HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
     messageRecieved();
 }
 

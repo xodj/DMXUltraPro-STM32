@@ -87,6 +87,8 @@ void tud_vendor_rx_cb(uint8_t itf)
 // Invoked when last rx transfer finished
 TU_ATTR_WEAK void tud_vendor_tx_cb(uint8_t itf, uint32_t sent_bytes){
 	  (void) itf;
+	  sent_bytes = 2;
+      tud_vendor_n_write(FTDI_DRIVER_NUMBER, &FTDI_TX_START_MESSAGE, 2);
 }
 
 // Invoked when device is mounted
